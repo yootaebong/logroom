@@ -1,0 +1,48 @@
+# ── Dependencies ─────────────────────────────
+node_modules/
+.pnpm-store/
+
+# ── Build output ─────────────────────────────
+dist/
+build/
+out/
+.turbo/
+*.tsbuildinfo
+
+# ── Astro generated types cache ──────────────
+.astro/
+
+# ── wrangler 로컬 상태(scripts/publish.sh 가 리포 루트에서 실행) ──
+# cache/wrangler-account.json 에 계정 식별자가 들어간다 — 커밋 금지.
+.wrangler/
+
+# ── Rust / Tauri ─────────────────────────────
+target/
+**/src-tauri/target/
+**/src-tauri/gen/
+# Tauri updater/서명 private key — 절대 커밋 금지
+*.key
+*.pem
+.tauri/
+
+# ── Local data / secrets (privacy 최우선) ─────
+.env
+.env.*
+!.env.example
+*.local
+*.sqlite
+*.sqlite3
+*.db
+*.db-*
+
+# ── Test / coverage ──────────────────────────
+coverage/
+.vitest/
+
+# ── Editor / OS ──────────────────────────────
+.DS_Store
+.idea/
+*.log
+
+# ── Release artifacts ────────────────────────
+release-out/

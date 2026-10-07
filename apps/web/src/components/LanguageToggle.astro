@@ -1,0 +1,77 @@
+---
+import { getRelativeLocaleUrl } from "astro:i18n";
+import { getLangFromUrl, getPathWithoutLocale, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const pathWithoutLocale = getPathWithoutLocale(Astro.url, lang);
+
+const enHref = getRelativeLocaleUrl("en", pathWithoutLocale);
+const koHref = getRelativeLocaleUrl("ko", pathWithoutLocale);
+---
+
+<nav aria-label={t("lang.nav.ariaLabel")} class="lang-toggle">
+  {
+    lang === "en" ? (
+      <span aria-current="page" class="lang-toggle__current">
+        EN
+      </span>
+    ) : (
+      <a href={enHref} aria-label={t("lang.switchToEnglish")} class="lang-toggle__link">
+        EN
+      </a>
+    )
+  }
+  <span aria-hidden="true" class="lang-toggle__sep">|</span>
+  {
+    lang === "ko" ? (
+      <span aria-current="page" class="lang-toggle__current">
+        KO
+      </span>
+    ) : (
+      <a href={koHref} aria-label={t("lang.switchToKorean")} class="lang-toggle__link">
+        KO
+      </a>
+    )
+  }
+</nav>
+
+<style>
+  .lang-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+  }
+  .lang-toggle__link,
+  .lang-toggle__current {
+    padding: 0.25rem 0.35rem;
+    border-radius: 0.25rem;
+    text-decoration: none;
+  }
+  .lang-toggle__link {
+    color: var(--color-muted);
+    transition: color 150ms ease;
+  }
+  .lang-toggle__link:hover,
+  .lang-toggle__link:focus-visible {
+    color: var(--color-ink);
+  }
+  .lang-toggle__link:focus-visible {
+    outline: 2px solid var(--color-violet);
+    outline-offset: 2px;
+  }
+  .lang-toggle__current {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .lang-toggle__sep {
+    color: var(--color-line);
+  }
+</style>

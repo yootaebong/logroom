@@ -1,0 +1,34 @@
+---
+// 랜딩 본문 섹션 — **en(`pages/index.astro`)과 ko(`pages/ko/index.astro`)가 공유한다.**
+//
+// 원래는 두 페이지가 같은 목록을 각자 나열했는데, 그 탓에 설치 안내 섹션을 추가할 때 en 에만
+// 들어가고 ko 는 빠지는 일이 실제로 발생했다(빌드 산출물 대조에서 발견). 섹션 구성은 언어와
+// 무관하므로 한 곳에만 둔다. 로케일은 각 컴포넌트가 `getLangFromUrl`로 URL 에서 직접 읽는다.
+import FeedbackForm from "./FeedbackForm.astro";
+import Features from "./Features.astro";
+import Hero from "./Hero.astro";
+import InstallNote from "./InstallNote.astro";
+import PrivacyPledge from "./PrivacyPledge.astro";
+import Problem from "./Problem.astro";
+import ProductMockup from "./ProductMockup.astro";
+import SourceStrip from "./SourceStrip.astro";
+import WaitlistForm from "./WaitlistForm.astro";
+---
+
+<main>
+  <Hero />
+  <InstallNote />
+  <SourceStrip />
+  <ProductMockup />
+  <Problem />
+  <Features />
+  <PrivacyPledge />
+  {/* 웨이트리스트는 "Windows 알림" 으로 용도를 바꿔 하단에 둔다 — 오늘 받을 수 없는 방문자를
+      빈손으로 돌려보내지 않는 유일한 자리다. */}
+  <div class="mx-auto max-w-2xl px-6 py-16">
+    <WaitlistForm />
+  </div>
+  <div class="px-6 pb-16">
+    <FeedbackForm />
+  </div>
+</main>

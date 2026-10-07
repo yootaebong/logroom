@@ -1,0 +1,110 @@
+---
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<section aria-labelledby="privacy-heading" class="reveal mx-auto max-w-3xl px-6 py-16">
+  <div class="rounded-2xl border border-line bg-surface p-8 sm:p-10">
+    <h2 id="privacy-heading" class="text-center text-2xl font-semibold text-ink sm:text-3xl">
+      {t("privacy.heading")}
+    </h2>
+    <p class="mx-auto mt-3 max-w-md text-center text-sm text-muted sm:text-base">
+      {t("privacy.description")}
+    </p>
+
+    <div class="architecture" aria-hidden="true">
+      <span class="architecture__node">Claude Code / Kiro</span>
+      <span class="architecture__arrow"></span>
+      <span class="architecture__node">{t("privacy.architecture.capture")}</span>
+      <span class="architecture__arrow"></span>
+      <span class="architecture__node architecture__node--accent">
+        <span class="lane-dot lane-dot--emerald" />Local SQLite
+      </span>
+    </div>
+
+    <p class="mx-auto mt-6 max-w-md text-center text-sm text-muted">
+      {t("privacy.byoKeyNote")}
+    </p>
+
+    <div class="mt-6 flex justify-center">
+      <p class="proof">
+        <span class="proof__dot" aria-hidden="true" />
+        {t("privacy.proof")}
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .architecture {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 2rem auto 0;
+  }
+  .architecture__node {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-line);
+    background: var(--color-canvas);
+    padding: 0.4rem 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  .architecture__node--accent {
+    border-color: color-mix(in srgb, var(--color-trust) 45%, var(--color-line));
+  }
+  .architecture__arrow {
+    position: relative;
+    display: inline-block;
+    width: 1.5rem;
+    height: 2px;
+    /* Static dashed line: captures → SQLite data flow, left to right. */
+    background-image: repeating-linear-gradient(
+      to right,
+      color-mix(in srgb, var(--color-trust) 70%, var(--color-line)) 0 4px,
+      transparent 4px 10px
+    );
+    background-size: 20px 100%;
+  }
+  .architecture__arrow::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: -1px;
+    width: 0.35rem;
+    height: 0.35rem;
+    border-right: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    transform: translateY(-50%) rotate(-45deg);
+  }
+
+  .proof {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--color-trust) 40%, var(--color-line));
+    background: color-mix(in srgb, var(--color-trust) 10%, var(--color-surface));
+    padding: 0.5rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink);
+    margin: 0;
+  }
+  .proof__dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: var(--color-trust);
+  }
+</style>

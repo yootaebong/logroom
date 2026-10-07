@@ -1,0 +1,335 @@
+---
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const smallTiles = [
+  {
+    title: t("features.tile.telemetry.title"),
+    description: t("features.tile.telemetry.description"),
+  },
+  {
+    title: t("features.tile.scrubbing.title"),
+    description: t("features.tile.scrubbing.description"),
+  },
+  {
+    title: t("features.tile.pause.title"),
+    description: t("features.tile.pause.description"),
+  },
+  {
+    title: t("features.tile.openFormat.title"),
+    description: t("features.tile.openFormat.description"),
+  },
+];
+---
+
+<section aria-labelledby="features-heading" class="reveal mx-auto max-w-5xl px-6 py-16">
+  <h2 id="features-heading" class="text-center text-2xl font-semibold text-ink sm:text-3xl">
+    {t("features.heading")}
+  </h2>
+
+  <div class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <article class="bento-tile bento-tile--large">
+      <h3 class="text-lg font-semibold text-ink">{t("features.summary.title")}</h3>
+      <p class="mt-2 text-sm text-muted">
+        {t("features.summary.description")}
+      </p>
+
+      <ul class="digest-mock" aria-hidden="true">
+        <li><span class="lane-dot lane-dot--amber" />1h 48m · claude_code</li>
+        <li><span class="lane-dot lane-dot--emerald" />42m · kiro_cli</li>
+        <li><span class="lane-dot lane-dot--pink" />18m · slack</li>
+      </ul>
+    </article>
+
+    <article class="bento-tile bento-tile--large">
+      <h3 class="text-lg font-semibold text-ink">{t("features.resume.title")}</h3>
+      <p class="mt-2 text-sm text-muted">
+        {t("features.resume.description")}
+      </p>
+
+      <div class="resume-mock" aria-hidden="true">
+        <p class="resume-mock__line">Recent: refactored SessionStore hydration.</p>
+        <p class="resume-mock__line">Unfinished: token refresh retry — one edge case left.</p>
+        <p class="resume-mock__cta"><span class="resume-mock__icon">⧉</span> Copied → paste into agent</p>
+      </div>
+    </article>
+
+    <article class="bento-tile">
+      <h3 class="text-lg font-semibold text-ink">{t("features.connectors.title")}</h3>
+      <p class="mt-2 text-sm text-muted">
+        {t("features.connectors.description")}
+      </p>
+
+      <div class="mini-lanes" aria-hidden="true">
+        <div class="mini-lane mini-lane--amber">
+          <span class="mini-lane__chip">claude_code</span>
+        </div>
+        <div class="mini-lane mini-lane--emerald">
+          <span class="mini-lane__chip">slack</span>
+        </div>
+        <div class="mini-lane mini-lane--pink">
+          <span class="mini-lane__chip">github</span>
+        </div>
+        <div class="mini-lane mini-lane--blue">
+          <span class="mini-lane__chip">linear</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="bento-tile">
+      <h3 class="text-lg font-semibold text-ink">{t("features.byoKey.title")}</h3>
+      <p class="mt-2 text-sm text-muted">
+        {t("features.byoKey.description")}
+      </p>
+
+      <div class="model-mock" aria-hidden="true">
+        <span class="model-mock__chip model-mock__chip--active">Claude</span>
+        <span class="model-mock__chip">GPT</span>
+        <span class="model-mock__chip">Gemini</span>
+      </div>
+    </article>
+  </div>
+
+  <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {
+      smallTiles.map((tile) => (
+        <article class="bento-tile">
+          <h3 class="font-mono text-sm font-semibold uppercase tracking-wide text-ink">
+            {tile.title}
+          </h3>
+          <p class="mt-2 text-sm text-muted">{tile.description}</p>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .bento-tile {
+    position: relative;
+    isolation: isolate;
+    border-radius: 1rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    padding: 1.5rem;
+    transition:
+      transform 200ms ease,
+      box-shadow 200ms ease;
+  }
+  .bento-tile:hover,
+  .bento-tile:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px -20px color-mix(in srgb, var(--color-violet) 55%, transparent);
+  }
+  .bento-tile--large {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Cursor-follow spotlight glow, positioned by --spot-x/--spot-y (see script below). */
+  .bento-tile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(
+      240px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+      color-mix(in srgb, var(--color-violet) 20%, transparent),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 250ms ease;
+  }
+  .bento-tile:hover::before,
+  .bento-tile:focus-within::before {
+    opacity: 0.6;
+  }
+
+  /* Gradient border ring, revealed on hover/focus via mask-composite trick. */
+  .bento-tile::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--color-violet), var(--color-cyan));
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 250ms ease;
+  }
+  .bento-tile:hover::after,
+  .bento-tile:focus-within::after {
+    opacity: 1;
+  }
+
+  /* ---- Active Grid: mini parallel-lane mockup ---- */
+  .mini-lanes {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
+  .mini-lane {
+    position: relative;
+    height: 1.75rem;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--lane-color) 14%, var(--color-canvas));
+    border: 1px solid color-mix(in srgb, var(--lane-color) 30%, transparent);
+  }
+  .mini-lane--amber {
+    --lane-color: var(--color-lane-amber);
+  }
+  .mini-lane--emerald {
+    --lane-color: var(--color-lane-emerald);
+  }
+  .mini-lane--pink {
+    --lane-color: var(--color-lane-pink);
+  }
+  .mini-lane--blue {
+    --lane-color: var(--color-lane-blue);
+  }
+  .mini-lane__chip {
+    position: absolute;
+    top: 50%;
+    left: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    border: 1px solid var(--lane-color);
+    background: var(--color-surface);
+    padding: 0.15rem 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-ink);
+    opacity: 0;
+    transform: translate(-130%, -50%);
+    transition:
+      transform 220ms ease,
+      opacity 220ms ease;
+  }
+  .mini-lane:nth-child(2) .mini-lane__chip {
+    transition-delay: 40ms;
+  }
+  .mini-lane:nth-child(3) .mini-lane__chip {
+    transition-delay: 80ms;
+  }
+  .mini-lane:nth-child(4) .mini-lane__chip {
+    transition-delay: 120ms;
+  }
+  .bento-tile--large:hover .mini-lane__chip,
+  .bento-tile--large:focus-within .mini-lane__chip {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+
+  /* ---- Resume briefing mockup: recap lines + "copied to agent" cta ---- */
+  .resume-mock {
+    margin-top: 1.25rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-canvas);
+    padding: 0.75rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+  .resume-mock__line {
+    margin: 0;
+    color: var(--color-muted);
+  }
+  .resume-mock__line + .resume-mock__line {
+    margin-top: 0.4rem;
+  }
+  .resume-mock__cta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.75rem 0 0;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-cyan);
+  }
+  .resume-mock__icon {
+    font-size: 0.85rem;
+  }
+
+  /* ---- BYO-key model picker mockup ---- */
+  .model-mock {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+  .model-mock__chip {
+    border-radius: 9999px;
+    border: 1px solid var(--color-line);
+    background: var(--color-canvas);
+    padding: 0.35rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-muted);
+  }
+  .model-mock__chip--active {
+    border-color: color-mix(in srgb, var(--color-violet) 45%, var(--color-line));
+    background: color-mix(in srgb, var(--color-violet) 12%, var(--color-canvas));
+    color: var(--color-ink);
+  }
+
+  /* ---- Daily digest mockup ---- */
+  .digest-mock {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink);
+  }
+  .digest-mock li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bento-tile,
+    .bento-tile::before,
+    .bento-tile::after,
+    .mini-lane__chip {
+      transition-duration: 0.001ms;
+    }
+  }
+</style>
+
+<script>
+  // Cursor-follow spotlight glow on bento tiles — desktop pointers only,
+  // rAF-throttled, purely presentational (drives --spot-x/--spot-y).
+  if (window.matchMedia("(pointer: fine)").matches) {
+    const tiles = document.querySelectorAll<HTMLElement>(".bento-tile");
+    let frame = 0;
+
+    for (const tile of tiles) {
+      tile.addEventListener("pointermove", (event) => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          const rect = tile.getBoundingClientRect();
+          tile.style.setProperty("--spot-x", `${event.clientX - rect.left}px`);
+          tile.style.setProperty("--spot-y", `${event.clientY - rect.top}px`);
+          frame = 0;
+        });
+      });
+    }
+  }
+</script>

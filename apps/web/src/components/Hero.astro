@@ -1,0 +1,148 @@
+---
+import { DOWNLOAD_URL } from "../consts";
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<section class="hero relative overflow-hidden border-b border-line" aria-label="LogRoom">
+  <div class="hero-glow" aria-hidden="true"></div>
+
+  <div class="relative z-10 mx-auto max-w-3xl px-6 pt-20 pb-16 text-center sm:pt-28 sm:pb-24">
+    <div class="mb-6 flex items-center justify-center gap-2" aria-hidden="true">
+      <span
+        class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet to-cyan text-sm font-bold text-canvas"
+      >
+        L
+      </span>
+      <span class="font-mono text-xs uppercase tracking-[0.2em] text-muted">{t("hero.brand")}</span>
+    </div>
+
+    <p class="hero-badge">
+      <span class="hero-badge__dot" aria-hidden="true"></span>
+      {t("hero.badge")}
+    </p>
+
+    <h1 class="text-hero text-balance font-bold text-ink">
+      {t("hero.title.line1")} <span class="hero-highlight">{t("hero.title.highlight")}</span>
+    </h1>
+    <p class="mt-4 text-xl font-medium text-ink sm:text-2xl">{t("hero.subtitle")}</p>
+    <p class="mx-auto mt-6 max-w-xl text-balance text-base text-muted sm:text-lg">
+      {t("hero.description")}
+    </p>
+
+    <div class="mt-10 flex flex-col items-center gap-3">
+      <a class="hero-cta" href={DOWNLOAD_URL} download>{t("hero.download")}</a>
+      <p class="font-mono text-xs text-muted">{t("hero.downloadNote")}</p>
+      <p class="font-mono text-xs text-muted">{t("hero.requirements")}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Single soft glow behind the headline — kept subtle so the type and
+     product mockup below carry the visual weight, not the background. */
+  .hero-glow {
+    position: absolute;
+    top: -8%;
+    left: 50%;
+    width: 48rem;
+    height: 28rem;
+    transform: translateX(-50%);
+    border-radius: 9999px;
+    background: radial-gradient(closest-side, var(--color-violet), var(--color-cyan));
+    opacity: 0.15;
+    filter: blur(140px);
+    pointer-events: none;
+  }
+
+  /* ---- Pulse badge: "100% local · zero telemetry" ---- */
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 0 1.25rem;
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--color-trust) 40%, var(--color-line));
+    background: color-mix(in srgb, var(--color-trust) 10%, var(--color-surface));
+    padding: 0.4rem 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-ink);
+  }
+  .hero-badge__dot {
+    position: relative;
+    width: 0.45rem;
+    height: 0.45rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: var(--color-trust);
+  }
+  .hero-badge__dot::after {
+    content: "";
+    position: absolute;
+    inset: -0.3rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-trust);
+    animation: hero-badge-pulse 2s ease-out infinite;
+  }
+  @keyframes hero-badge-pulse {
+    from {
+      transform: scale(0.6);
+      opacity: 0.8;
+    }
+    to {
+      transform: scale(1.7);
+      opacity: 0;
+    }
+  }
+
+  /* ---- Primary CTA: the one action this page exists for ---- */
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.6rem;
+    background-image: linear-gradient(90deg, var(--color-violet), var(--color-cyan));
+    padding: 0.85rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-canvas);
+    text-decoration: none;
+    transition: transform 120ms ease, filter 120ms ease;
+  }
+  .hero-cta:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+  .hero-cta:focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 3px;
+  }
+  /* 모션 최소화 설정에서는 위치 이동을 없애고 밝기 변화만 남긴다. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-cta {
+      transition: filter 120ms ease;
+    }
+    .hero-cta:hover {
+      transform: none;
+    }
+  }
+
+  /* ---- Headline highlight: static accent gradient, no motion ---- */
+  .hero-highlight {
+    background-image: linear-gradient(90deg, var(--color-violet), var(--color-cyan));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  /* Reduced motion: freeze the badge pulse into a static, still-legible dot */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-badge__dot::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
+</style>

@@ -1,0 +1,146 @@
+@import "tailwindcss";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/jetbrains-mono";
+
+@theme {
+  /* Surfaces */
+  --color-canvas: #08090c;
+  --color-surface: #111318;
+  --color-line: #22252e;
+
+  /* Text */
+  --color-ink: #edeef2;
+  --color-muted: #8a8f9e;
+
+  /* Accent gradient (CTA / headline highlight) */
+  --color-violet: #7c5cff;
+  --color-cyan: #39c6f4;
+
+  /* Session lanes (4 fixed hues, reused across hero / bento / diagrams) */
+  --color-lane-amber: #f5a623;
+  --color-lane-emerald: #34d399;
+  --color-lane-pink: #f472b6;
+  --color-lane-blue: #60a5fa;
+
+  /* Trust badge reuses the emerald lane hue — single source of truth */
+  --color-trust: var(--color-lane-emerald);
+
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", monospace;
+
+  --text-hero: clamp(2.5rem, 6vw, 4.5rem);
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.02em;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+  }
+
+  /* 은은한 배경 질감 — 미세 도트 그리드(정적, CSS만).
+     상단 중앙(히어로)에서 가장 잘 보이고 아래로 갈수록 사라지는 radial mask.
+     과하지 않게: 도트는 line 색 ~35% 알파 1px, 24px 간격. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-line) 55%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 24px 24px;
+    mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, black 20%, transparent 75%);
+  }
+
+  ::selection {
+    @apply bg-violet/30 text-ink;
+  }
+
+  /* 자연스러운 개행 — 언어별 규칙.
+     영어: 헤드라인은 줄 길이 균형(balance), 본문은 고아 단어 방지(pretty).
+     한국어: 어절 단위로만 개행(keep-all — 단어 중간이 꺾이지 않게),
+     긴 URL 등은 overflow-wrap으로 방어. */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :lang(ko) {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+}
+
+/* Scroll-triggered section reveal — progressively enhanced, no JS.
+   Sections opt in with class="reveal"; browsers without scroll-driven
+   animation support (or reduced-motion) simply render fully visible. */
+@layer components {
+  .reveal {
+    animation: reveal-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 50%;
+  }
+
+  /* Shared lane-color dot, reused across the hero Room card, the bento
+     digest mockup, and the privacy architecture diagram. */
+  .lane-dot {
+    display: inline-block;
+    width: 0.4rem;
+    height: 0.4rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+  }
+  .lane-dot--amber {
+    background: var(--color-lane-amber);
+  }
+  .lane-dot--emerald {
+    background: var(--color-lane-emerald);
+  }
+  .lane-dot--pink {
+    background: var(--color-lane-pink);
+  }
+  .lane-dot--blue {
+    background: var(--color-lane-blue);
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@supports not (animation-timeline: view()) {
+  .reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Unlayered rule: beats the @layer components rule above without !important. */
+  .reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

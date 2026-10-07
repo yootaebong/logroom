@@ -1,0 +1,29 @@
+---
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const problems = [t("problem.item1"), t("problem.item2"), t("problem.item3")];
+---
+
+<section aria-labelledby="problem-heading" class="reveal mx-auto max-w-3xl px-6 py-16">
+  <h2 id="problem-heading" class="text-center text-2xl font-semibold text-ink sm:text-3xl">
+    {t("problem.heading")}
+  </h2>
+  <ul class="mt-10 space-y-3">
+    {
+      problems.map((problem, index) => (
+        <li class="flex items-start gap-4 rounded-xl border border-line bg-surface px-5 py-4">
+          <span
+            class="mt-0.5 shrink-0 font-mono text-xs text-muted"
+            aria-hidden="true"
+          >
+            0{index + 1}
+          </span>
+          <span class="font-mono text-sm text-ink sm:text-base">{problem}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>

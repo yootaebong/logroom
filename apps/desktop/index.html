@@ -1,0 +1,30 @@
+<!doctype html>
+<!-- 다크 우선(docs/05-ui-ux.md) — shadcn 다크 토큰 활성화 -->
+<html lang="ko" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LogRoom</title>
+    <!-- FOUC 방지: React 마운트 전에 localStorage 테마를 선적용한다. 위 class="dark"는 저장된
+         값이 없을 때(첫 실행)의 기본값이고, light/warm이 저장돼 있으면 여기서 즉시 덮어쓴다.
+         store.ts THEME_STORAGE_KEY("logroom-theme")와 값을 동일하게 유지해야 한다. -->
+    <script>
+      (() => {
+        var theme = localStorage.getItem("logroom-theme");
+        var root = document.documentElement;
+        if (theme === "light") {
+          root.classList.remove("dark");
+        } else if (theme === "warm") {
+          root.classList.remove("dark");
+          root.classList.add("theme-warm");
+        }
+      })();
+    </script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

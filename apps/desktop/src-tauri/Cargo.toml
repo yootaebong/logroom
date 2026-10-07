@@ -1,0 +1,54 @@
+[package]
+name = "desktop"
+version = "0.17.0"
+description = "LogRoom — 로컬 온리 AI 활동 기록기"
+authors = ["Taebong Yoo"]
+edition = "2021"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-process = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-updater = "2"
+# 재개 브리핑(M7-②) "복사" 버튼용 — 클립보드에 브리핑 텍스트를 쓴다(읽기 권한은 부여하지 않음).
+tauri-plugin-clipboard-manager = "2"
+# 직전 창 크기·위치를 저장/복원한다(사용자 요구) — 종료 시 상태 저장, 다음 실행 때 복원.
+tauri-plugin-window-state = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# refinery-core 0.9 는 rusqlite <=0.39 만 지원 → 0.39 로 고정.
+rusqlite = { version = "0.39", features = ["bundled"] }
+refinery = { version = "0.9", features = ["rusqlite"] }
+axum = "0.8"
+# "process": 일일 AI 요약(M7-①, ADR-0016) CLI 백엔드가 `claude` 바이너리를 비동기로 실행하는 데 필요.
+tokio = { version = "1", features = ["rt-multi-thread", "net", "time", "macros", "process"] }
+tower-http = { version = "0.7", features = ["limit"] }
+rand = "0.10"
+subtle = "2"
+dirs = "6"
+uuid = { version = "1", features = ["v7"] }
+anyhow = "1"
+chrono = "0.4"
+chrono-tz = "0.10"
+notify = "8"
+regex = "1"
+# Slack 커넥터(v1, docs/08-connectors.md) 폴러용 HTTP 클라이언트. tauri-plugin-updater가 이미
+# reqwest 0.13(rustls)을 트리 안에 끌어오므로 동일 메이저를 지정해 중복 컴파일을 피한다
+# (설계 문서의 예시 버전은 0.12+"rustls-tls" 였으나, 이미 해결된 lockfile 버전(0.13)에서는 해당
+# 피처명이 "rustls"로 바뀌어 그에 맞춰 고정).
+reqwest = { version = "0.13", default-features = false, features = ["json", "query", "rustls"] }

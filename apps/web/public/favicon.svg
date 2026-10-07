@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="LogRoom">
+  <circle cx="32" cy="32" r="32" fill="#10b981" />
+  <text
+    x="32"
+    y="34"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="ui-sans-serif, system-ui, -apple-system, sans-serif"
+    font-weight="700"
+    font-size="34"
+    fill="#052e21"
+  >L</text>
+</svg>

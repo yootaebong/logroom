@@ -1,0 +1,11 @@
+---
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="mx-auto max-w-3xl px-6 pt-8 pb-16 text-center font-mono text-xs text-muted">
+  <p>{t("footer.tagline")} · &copy; {year} LogRoom</p>
+</footer>

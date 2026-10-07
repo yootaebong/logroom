@@ -1,0 +1,37 @@
+{
+  "stream": {
+    "id": "claude_code:8f3e2a10-0b1c-4d5e-9f00-112233445566",
+    "source": "claude_code",
+    "kind": "session",
+    "title": "LogRoom M0b 구현",
+    "project": "/Users/me/src/logroom",
+    "gitBranch": "main",
+    "metadata": {}
+  },
+  "events": [
+    {
+      "externalId": "aaaaaaaa-0000-4000-8000-000000000001",
+      "streamId": "claude_code:8f3e2a10-0b1c-4d5e-9f00-112233445566",
+      "ts": 1751328000000,
+      "source": "claude_code",
+      "type": "prompt",
+      "title": "독 전체 읽고 진행하자",
+      "body": "M0b Rust 백엔드 착수",
+      "parentId": null,
+      "url": null,
+      "metadata": {}
+    },
+    {
+      "externalId": "bbbbbbbb-0000-4000-8000-000000000002",
+      "streamId": "claude_code:8f3e2a10-0b1c-4d5e-9f00-112233445566",
+      "ts": 1751328005000,
+      "source": "claude_code",
+      "type": "response",
+      "body": "SQLite + FTS5 + axum 인제스트 서버를 구현합니다.",
+      "model": "claude-sonnet-4-5",
+      "tokensIn": 1200,
+      "tokensOut": 340,
+      "metadata": {}
+    }
+  ]
+}

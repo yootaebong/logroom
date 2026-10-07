@@ -1,0 +1,10 @@
+// Cloudflare Workers(정적 assets) 배포 설정 — 랜딩(apps/web) 전용.
+// CF Git 연동 빌드의 deploy 단계(`npx wrangler deploy`)가 이 파일을 읽는다.
+// 빌드 명령(pnpm --filter @logroom/web build)이 만든 정적 산출물을 그대로 서빙한다.
+{
+  "name": "logroom",
+  "compatibility_date": "2026-01-01",
+  "assets": {
+    "directory": "./apps/web/dist"
+  }
+}
