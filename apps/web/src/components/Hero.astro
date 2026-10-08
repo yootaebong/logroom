@@ -1,5 +1,5 @@
 ---
-import { DOWNLOAD_URL } from "../consts";
+import { BREW_COMMAND, DOWNLOAD_URL, GITHUB_URL } from "../consts";
 import { getLangFromUrl, useTranslations } from "../i18n/utils";
 
 const lang = getLangFromUrl(Astro.url);
@@ -27,14 +27,34 @@ const t = useTranslations(lang);
     <h1 class="text-hero text-balance font-bold text-ink">
       {t("hero.title.line1")} <span class="hero-highlight">{t("hero.title.highlight")}</span>
     </h1>
-    <p class="mt-4 text-xl font-medium text-ink sm:text-2xl">{t("hero.subtitle")}</p>
-    <p class="mx-auto mt-6 max-w-xl text-balance text-base text-muted sm:text-lg">
-      {t("hero.description")}
+    <p class="mx-auto mt-6 max-w-2xl text-balance text-base text-muted sm:text-lg">
+      {t("hero.subtitle")}
     </p>
 
-    <div class="mt-10 flex flex-col items-center gap-3">
-      <a class="hero-cta" href={DOWNLOAD_URL} download>{t("hero.download")}</a>
-      <p class="font-mono text-xs text-muted">{t("hero.downloadNote")}</p>
+    <div class="mt-10 flex flex-col items-center gap-4">
+      <div class="flex flex-col items-center gap-3 sm:flex-row">
+        <a class="hero-cta" href={DOWNLOAD_URL}>{t("hero.download")}</a>
+        <a class="hero-secondary" href={GITHUB_URL} rel="noopener">{t("hero.github")}</a>
+      </div>
+
+      <div class="hero-brew">
+        <span class="hero-brew__label">{t("hero.brew.label")}</span>
+        <div class="hero-brew__line">
+          <code class="hero-brew__code"><span aria-hidden="true">$ </span>{BREW_COMMAND}</code>
+          <button
+            type="button"
+            class="hero-brew__copy"
+            data-copy={BREW_COMMAND}
+            data-label-copy={t("hero.brew.copy")}
+            data-label-copied={t("hero.brew.copied")}
+            aria-label={t("hero.brew.copyAriaLabel")}
+          >
+            {t("hero.brew.copy")}
+          </button>
+        </div>
+        <span class="hero-brew__status sr-only" role="status" aria-live="polite"></span>
+      </div>
+
       <p class="font-mono text-xs text-muted">{t("hero.requirements")}</p>
     </div>
   </div>
@@ -57,7 +77,7 @@ const t = useTranslations(lang);
     pointer-events: none;
   }
 
-  /* ---- Pulse badge: "100% local · zero telemetry" ---- */
+  /* ---- Pulse badge: "Open source · MIT · 100% local" ---- */
   .hero-badge {
     display: inline-flex;
     align-items: center;
@@ -130,6 +150,78 @@ const t = useTranslations(lang);
     }
   }
 
+  /* ---- Secondary CTA: source link, outlined so it doesn't compete with Download ---- */
+  .hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.6rem;
+    border: 1px solid var(--color-line);
+    padding: 0.8rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: border-color 120ms ease;
+  }
+  .hero-secondary:hover {
+    border-color: color-mix(in srgb, var(--color-violet) 50%, var(--color-line));
+  }
+  .hero-secondary:focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 3px;
+  }
+
+  /* ---- Homebrew one-liner with copy button ---- */
+  .hero-brew {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: 100%;
+  }
+  .hero-brew__label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-muted);
+  }
+  .hero-brew__line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+    border-radius: 0.6rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    padding: 0.35rem 0.35rem 0.35rem 0.9rem;
+  }
+  .hero-brew__code {
+    overflow-x: auto;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-ink);
+  }
+  .hero-brew__copy {
+    flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 0.4rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-canvas);
+    padding: 0.3rem 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-muted);
+    transition: color 120ms ease;
+  }
+  .hero-brew__copy:hover {
+    color: var(--color-ink);
+  }
+  .hero-brew__copy:focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 2px;
+  }
+
   /* ---- Headline highlight: static accent gradient, no motion ---- */
   .hero-highlight {
     background-image: linear-gradient(90deg, var(--color-violet), var(--color-cyan));
@@ -138,7 +230,7 @@ const t = useTranslations(lang);
     color: transparent;
   }
 
-  /* Reduced motion: freeze the badge pulse into a static, still-legible dot */
+  /* Reduced motion: stop the badge pulse into a static, still-legible dot */
   @media (prefers-reduced-motion: reduce) {
     .hero-badge__dot::after {
       animation: none;
@@ -146,3 +238,29 @@ const t = useTranslations(lang);
     }
   }
 </style>
+
+<script>
+  // Homebrew 명령 복사. 클립보드 API 가 막힌 환경(비보안 컨텍스트·권한 거부)에서는 아무것도
+  // 바꾸지 않는다 — 명령은 화면에 그대로 있으니 사용자가 직접 선택해 복사할 수 있다.
+  const COPIED_RESET_MS = 1500;
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>(".hero-brew__copy")) {
+    button.addEventListener("click", async () => {
+      const text = button.dataset.copy;
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        const copied = button.dataset.labelCopied ?? "Copied";
+        const status = button.closest(".hero-brew")?.querySelector(".hero-brew__status");
+        button.textContent = copied;
+        if (status) status.textContent = copied;
+        window.setTimeout(() => {
+          button.textContent = button.dataset.labelCopy ?? "Copy";
+          if (status) status.textContent = "";
+        }, COPIED_RESET_MS);
+      } catch {
+        // 복사 실패는 조용히 무시한다(위 주석 참고).
+      }
+    });
+  }
+</script>

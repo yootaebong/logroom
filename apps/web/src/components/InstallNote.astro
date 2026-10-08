@@ -2,6 +2,8 @@
 // 설치 마찰의 **선공개** — 공증을 안 하기로 한 이상(비용 대비 검증 우선), 첫 실행 경고는 반드시
 // 다운로드 직후에 미리 알려야 한다. 놀라면 이탈하고, 예고하면 넘어온다. 그리고 이 정직함 자체가
 // 이 페이지의 프라이버시 포지셔닝과 결이 맞는다.
+// Homebrew 경로는 cask postflight 가 quarantine 을 지워 경고가 없으므로 먼저 보여 준다.
+import { BREW_COMMAND } from "../consts";
 import { getLangFromUrl, useTranslations } from "../i18n/utils";
 
 const lang = getLangFromUrl(Astro.url);
@@ -13,6 +15,12 @@ const steps = [t("install.step1"), t("install.step2"), t("install.step3")];
 <section class="border-b border-line bg-surface/40" aria-labelledby="install-heading">
   <div class="mx-auto max-w-2xl px-6 py-12">
     <h2 id="install-heading" class="text-lg font-semibold text-ink">{t("install.heading")}</h2>
+
+    <h3 class="mt-5 text-sm font-semibold text-ink">{t("install.brew.title")}</h3>
+    <pre class="install-code"><code>{BREW_COMMAND}</code></pre>
+    <p class="mt-2 text-sm text-muted">{t("install.brew.description")}</p>
+
+    <h3 class="mt-6 text-sm font-semibold text-ink">{t("install.dmg.title")}</h3>
     <p class="mt-2 text-sm text-muted">{t("install.description")}</p>
 
     <ol class="install-steps">
@@ -27,6 +35,17 @@ const steps = [t("install.step1"), t("install.step2"), t("install.step3")];
 </section>
 
 <style>
+  .install-code {
+    margin: 0.5rem 0 0;
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-canvas);
+    padding: 0.6rem 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-ink);
+  }
   .install-steps {
     margin: 1.25rem 0 0;
     padding-left: 1.25rem;

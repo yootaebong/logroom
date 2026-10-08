@@ -1,6 +1,6 @@
 # @logroom/web
 
-LogRoom 웨이트리스트 랜딩. Astro + Tailwind v4, 정적 1페이지(SSG). 애널리틱스/외부 스크립트/폰트 CDN 없음(ADR-0011).
+LogRoom 랜딩(오픈소스 소개·다운로드). Astro + Tailwind v4, 정적 1페이지(SSG). 애널리틱스/외부 스크립트/폰트 CDN 없음(ADR-0011).
 
 ## 로컬 개발
 
@@ -15,26 +15,6 @@ pnpm --filter @logroom/web preview  # 빌드 결과 로컬 미리보기
 
 또는 루트 `pnpm run build`(turbo)로 다른 워크스페이스와 함께 빌드된다.
 
-## 웨이트리스트 수집 — 환경변수
-
-폼 제출 대상은 빌드 타임 환경변수로 결정된다(`src/components/WaitlistForm.astro` 참고). 우선순위:
-
-1. **Supabase** — `PUBLIC_SUPABASE_URL` + `PUBLIC_SUPABASE_ANON_KEY`가 둘 다 있으면 브라우저가 `${URL}/rest/v1/waitlist`로 직접 POST한다.
-2. **`PUBLIC_WAITLIST_ENDPOINT`** — Supabase 변수가 없으면 이 값(예: Formspree 폼 URL `https://formspree.io/f/xxxxxxx`)으로 제출한다.
-3. **둘 다 미설정** — 폼 대신 `mailto:hello@logroom.app?subject=Waitlist` 링크로 자동 폴백한다. 배포는 가능하지만 실제 수집을 원하면 둘 중 하나는 반드시 설정할 것.
-
-`PUBLIC_` 접두사는 Astro/Vite 규약으로 클라이언트 번들에 노출되는 값임을 의미한다.
-
-1. `.env.example`을 `.env`로 복사 후 값 채우기(로컬 전용, git에 커밋되지 않음).
-2. 배포 플랫폼(Vercel/Cloudflare Pages)의 프로젝트 환경변수에도 동일 키로 등록.
-
-### Supabase 셋업
-
-1. [supabase.com](https://supabase.com)에서 새 프로젝트 생성.
-2. SQL Editor에서 `supabase/waitlist.sql`을 한 번 실행 — `waitlist` 테이블과 RLS 정책(익명 insert만 허용, select/update/delete 정책 없음)이 생성된다.
-3. Settings > API에서 Project URL과 anon public key를 복사해 `PUBLIC_SUPABASE_URL` / `PUBLIC_SUPABASE_ANON_KEY`로 로컬 `.env`와 배포 환경변수에 등록.
-4. 제출된 이메일 확인은 Supabase 대시보드의 **Table Editor > waitlist**에서 한다(공개 API로는 조회할 수 없다).
-
 ## 배포 (Vercel 또는 Cloudflare Pages, 모노레포에서 `apps/web`만)
 
 공통: GitHub 에서 이 저장소를 그대로 연결하고, 아래처럼 **루트 디렉터리를 `apps/web`으로 지정**한다.
@@ -45,7 +25,8 @@ pnpm --filter @logroom/web preview  # 빌드 결과 로컬 미리보기
 2. Root Directory: `apps/web`.
 3. Framework Preset: Astro (자동 인식). Build Command/Output Directory는 기본값(`astro build` / `dist`) 유지.
 4. Install Command는 모노레포 인식을 위해 `pnpm install --frozen-lockfile` (루트 lockfile 기준, Vercel이 workspace 루트를 자동 탐지).
-5. Environment Variables에 `PUBLIC_SUPABASE_URL`/`PUBLIC_SUPABASE_ANON_KEY`(또는 `PUBLIC_WAITLIST_ENDPOINT`) 등록 후 배포.
+
+환경변수는 필요 없다(폼·외부 수집 없음).
 
 ### Cloudflare Pages
 
@@ -53,7 +34,6 @@ pnpm --filter @logroom/web preview  # 빌드 결과 로컬 미리보기
 2. Build command: `cd ../.. && pnpm install && pnpm --filter @logroom/web build`
 3. Build output directory: `apps/web/dist`
 4. Root directory: 리포 루트(모노레포 lockfile을 보게 하기 위해 `apps/web`로 좁히지 않는다).
-5. Environment Variables에 `PUBLIC_SUPABASE_URL`/`PUBLIC_SUPABASE_ANON_KEY`(또는 `PUBLIC_WAITLIST_ENDPOINT`) 등록 후 배포.
 
 ## 도메인 연결 (logroom.app, 구매 완료)
 
@@ -83,5 +63,6 @@ pnpm --filter @logroom/web preview  # 빌드 결과 로컬 미리보기
 
 ## 참고
 
-- 애널리틱스·이메일 수집은 **이 사이트 안에서만** 이루어지며, 데스크톱 앱은 어떤 사용 데이터도 보내지 않는다(ADR-0011, `docs/07-decisions.md`).
+- 이 사이트는 애널리틱스·이메일 수집·외부 요청이 없고, 데스크톱 앱도 어떤 사용 데이터도 보내지 않는다(ADR-0011, `docs/07-decisions.md`).
+- 제품 화면은 `public/screens/{resume,digest,timeline,summary}.png` 실제 스크린샷이다(`src/components/ProductMockup.astro`). 파일을 바꾸면 같은 파일의 width/height 도 실제 픽셀 크기로 맞춘다.
 - biome 2.5.1은 `.astro` 파서를 지원하지 않는다(frontmatter만 읽어 템플릿에서의 변수 사용을 인식 못 하고 오탐 발생 확인됨). 그래서 루트 `biome.json`의 `files.includes`에 `!**/*.astro` / `!**/apps/web/.astro`를 추가해 `.astro` 소스 파일과 Astro가 생성하는 `.astro/`(타입 캐시, gitignore 대상) 디렉터리를 검사 대상에서 명시적으로 제외했다. `.ts`/`.mjs`/`.json`/`.css` 등 다른 파일은 정상적으로 lint/format 대상이다.

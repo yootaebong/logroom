@@ -1,12 +1,29 @@
 ---
+import { GITHUB_URL } from "../consts";
 import { getLangFromUrl, useTranslations } from "../i18n/utils";
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
+
+// 앱이 읽는 소스 6개 — 고유명사라 번역하지 않는다.
+const SOURCES = ["Claude Code", "Kiro", "GitHub", "Slack", "Linear", "Notion"] as const;
+
+const networkExceptions = [
+  t("privacy.network.connectors"),
+  t("privacy.network.summary"),
+  t("privacy.network.update"),
+];
+
+const tiles = [
+  { title: t("privacy.tile.telemetry.title"), description: t("privacy.tile.telemetry.description") },
+  { title: t("privacy.tile.scrubbing.title"), description: t("privacy.tile.scrubbing.description") },
+  { title: t("privacy.tile.pause.title"), description: t("privacy.tile.pause.description") },
+  { title: t("privacy.tile.openFormat.title"), description: t("privacy.tile.openFormat.description") },
+];
 ---
 
-<section aria-labelledby="privacy-heading" class="reveal mx-auto max-w-3xl px-6 py-16">
-  <div class="rounded-2xl border border-line bg-surface p-8 sm:p-10">
+<section aria-labelledby="privacy-heading" class="reveal mx-auto max-w-5xl px-6 py-16">
+  <div class="mx-auto max-w-3xl rounded-2xl border border-line bg-surface p-8 sm:p-10">
     <h2 id="privacy-heading" class="text-center text-2xl font-semibold text-ink sm:text-3xl">
       {t("privacy.heading")}
     </h2>
@@ -15,7 +32,9 @@ const t = useTranslations(lang);
     </p>
 
     <div class="architecture" aria-hidden="true">
-      <span class="architecture__node">Claude Code / Kiro</span>
+      <span class="architecture__sources">
+        {SOURCES.map((source) => <span class="architecture__node">{source}</span>)}
+      </span>
       <span class="architecture__arrow"></span>
       <span class="architecture__node">{t("privacy.architecture.capture")}</span>
       <span class="architecture__arrow"></span>
@@ -24,9 +43,15 @@ const t = useTranslations(lang);
       </span>
     </div>
 
-    <p class="mx-auto mt-6 max-w-md text-center text-sm text-muted">
-      {t("privacy.byoKeyNote")}
-    </p>
+    <div class="network">
+      <h3 class="text-sm font-semibold text-ink">{t("privacy.network.heading")}</h3>
+      <ul class="network__list">
+        {networkExceptions.map((item) => <li>{item}</li>)}
+      </ul>
+      <p class="mt-4 text-sm">
+        <a class="verify-link" href={GITHUB_URL} rel="noopener">{t("privacy.verify")}</a>
+      </p>
+    </div>
 
     <div class="mt-6 flex justify-center">
       <p class="proof">
@@ -34,6 +59,19 @@ const t = useTranslations(lang);
         {t("privacy.proof")}
       </p>
     </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {
+      tiles.map((tile) => (
+        <article class="rounded-2xl border border-line bg-surface p-6">
+          <h3 class="font-mono text-sm font-semibold uppercase tracking-wide text-ink">
+            {tile.title}
+          </h3>
+          <p class="mt-2 text-sm text-muted">{tile.description}</p>
+        </article>
+      ))
+    }
   </div>
 </section>
 
@@ -58,6 +96,12 @@ const t = useTranslations(lang);
     font-size: 0.7rem;
     color: var(--color-ink);
     white-space: nowrap;
+  }
+  .architecture__sources {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem;
   }
   .architecture__node--accent {
     border-color: color-mix(in srgb, var(--color-trust) 45%, var(--color-line));
@@ -85,6 +129,36 @@ const t = useTranslations(lang);
     border-right: 1px solid var(--color-line);
     border-bottom: 1px solid var(--color-line);
     transform: translateY(-50%) rotate(-45deg);
+  }
+
+  .network {
+    margin: 2rem auto 0;
+    max-width: 34rem;
+  }
+  .network__list {
+    margin: 0.75rem 0 0;
+    padding-left: 1.1rem;
+    list-style: disc;
+    display: grid;
+    gap: 0.45rem;
+    font-size: 0.875rem;
+    color: var(--color-ink);
+  }
+  .network__list li::marker {
+    color: var(--color-muted);
+  }
+  .verify-link {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--color-violet) 60%, transparent);
+    text-underline-offset: 3px;
+  }
+  .verify-link:hover {
+    text-decoration-color: var(--color-cyan);
+  }
+  .verify-link:focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 2px;
   }
 
   .proof {
