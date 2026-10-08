@@ -1,11 +1,44 @@
 ---
+import { GITHUB_ISSUES_URL, GITHUB_LICENSE_URL, GITHUB_URL } from "../consts";
 import { getLangFromUrl, useTranslations } from "../i18n/utils";
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const year = new Date().getFullYear();
+
+const links = [
+  { href: GITHUB_URL, label: t("footer.github") },
+  { href: GITHUB_ISSUES_URL, label: t("footer.issues") },
+  { href: GITHUB_LICENSE_URL, label: t("footer.license") },
+];
 ---
 
 <footer class="mx-auto max-w-3xl px-6 pt-8 pb-16 text-center font-mono text-xs text-muted">
+  <ul class="mb-3 flex flex-wrap justify-center gap-x-4 gap-y-1">
+    {
+      links.map((link) => (
+        <li>
+          <a class="footer-link" href={link.href} rel="noopener">
+            {link.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
   <p>{t("footer.tagline")} · &copy; {year} LogRoom</p>
 </footer>
+
+<style>
+  .footer-link {
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+  .footer-link:hover {
+    color: var(--color-ink);
+  }
+  .footer-link:focus-visible {
+    outline: 2px solid var(--color-violet);
+    outline-offset: 2px;
+  }
+</style>

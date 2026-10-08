@@ -4,87 +4,49 @@ import { getLangFromUrl, useTranslations } from "../i18n/utils";
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 
-// Decorative product-preview data — illustrative, always English regardless
-// of locale (only the tab labels are translated). Not real user data.
-
-interface TimelineBar {
-  color: "amber" | "emerald" | "pink" | "blue";
-  left: number;
+// 실제 앱 스크린샷(public/screens/*.png). 정적 경로로만 참조하므로 파일이 아직 없어도
+// 빌드는 통과한다 — 찍어서 넣으면 바로 보인다. 크기는 실제 파일 픽셀 크기와 맞춘다
+// (레이아웃 밀림 방지용 width/height).
+interface Screen {
+  id: "resume" | "digest" | "timeline" | "summary";
+  label: string;
+  alt: string;
   width: number;
+  height: number;
 }
 
-const timelineBars: TimelineBar[] = [
-  { color: "amber", left: 4, width: 22 },
-  { color: "emerald", left: 18, width: 30 },
-  { color: "pink", left: 40, width: 16 },
-  { color: "blue", left: 55, width: 34 },
-];
+const SCREEN_WIDTH = 1440;
+const SCREEN_HEIGHT = 900;
+const TIMELINE_HEIGHT = 560;
 
-const timelineTicks = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00"];
-
-// Resume-briefing preview — the one thing the hero promises, so it leads the mockup.
-const resumeLines = [
-  "Rewrote the token refresh path; retry/backoff is in, tests pass.",
-  "PR #482 is open and green — waiting on review.",
-  "Left off mid-way through the 401 redirect: the callback still drops the `next` param.",
-];
-const resumeNext = "Next: fix the dropped `next` param, then wire the redirect test.";
-
-interface DigestRow {
-  color: "amber" | "emerald" | "pink" | "blue";
-  time: string;
-  title: string;
-  prompts: number;
-  live?: boolean;
-}
-
-interface DigestProject {
-  name: string;
-  rows: DigestRow[];
-}
-
-const digestProjects: DigestProject[] = [
+const screens: Screen[] = [
   {
-    name: "logroom-web",
-    rows: [
-      { color: "amber", time: "09:14", title: "Fix auth token refresh flow", prompts: 14 },
-      {
-        color: "emerald",
-        time: "10:02",
-        title: "Wire up waitlist Formspree endpoint",
-        prompts: 6,
-      },
-      { color: "blue", time: "11:30", title: "Refactor SessionStore hydration", prompts: 21 },
-    ],
+    id: "resume",
+    label: t("mockup.tab.resume"),
+    alt: t("mockup.alt.resume"),
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
   },
   {
-    name: "logroom-core",
-    rows: [
-      { color: "pink", time: "08:40", title: "Add FTS5 tokenizer for code snippets", prompts: 9 },
-      {
-        color: "amber",
-        time: "13:05",
-        title: "Debug SQLite WAL checkpoint stall",
-        prompts: 17,
-        live: true,
-      },
-    ],
-  },
-];
-
-const searchResults = [
-  { pre: "Fix ", hit: "auth token", post: " refresh flow", meta: "claude_code · 2d ago" },
-  {
-    pre: "Add middleware to validate ",
-    hit: "auth token",
-    post: " expiry",
-    meta: "kiro_cli · 4d ago",
+    id: "digest",
+    label: t("mockup.tab.digest"),
+    alt: t("mockup.alt.digest"),
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
   },
   {
-    pre: "Debug ",
-    hit: "auth token",
-    post: " race condition in SessionStore",
-    meta: "claude_code · 1w ago",
+    id: "timeline",
+    label: t("mockup.tab.timeline"),
+    alt: t("mockup.alt.timeline"),
+    width: SCREEN_WIDTH,
+    height: TIMELINE_HEIGHT,
+  },
+  {
+    id: "summary",
+    label: t("mockup.tab.summary"),
+    alt: t("mockup.alt.summary"),
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
   },
 ];
 ---
@@ -101,124 +63,41 @@ const searchResults = [
     </div>
 
     <div class="mockup-root">
-      <p class="sr-only">{t("mockup.srDescription")}</p>
-
       <div class="mockup-tabbar" role="radiogroup" aria-label={t("mockup.tablist.ariaLabel")}>
-        <div class="mockup-tab">
-          <input
-            type="radio"
-            name="mockup-tab"
-            id="mockup-tab-resume"
-            class="mockup-tab__input"
-            checked
-          />
-          <label for="mockup-tab-resume" class="mockup-tab__label">{t("mockup.tab.resume")}</label>
-        </div>
-        <div class="mockup-tab">
-          <input type="radio" name="mockup-tab" id="mockup-tab-digest" class="mockup-tab__input" />
-          <label for="mockup-tab-digest" class="mockup-tab__label">{t("mockup.tab.digest")}</label>
-        </div>
-        <div class="mockup-tab">
-          <input type="radio" name="mockup-tab" id="mockup-tab-timeline" class="mockup-tab__input" />
-          <label for="mockup-tab-timeline" class="mockup-tab__label">
-            {t("mockup.tab.timeline")}
-          </label>
-        </div>
-        <div class="mockup-tab">
-          <input type="radio" name="mockup-tab" id="mockup-tab-search" class="mockup-tab__input" />
-          <label for="mockup-tab-search" class="mockup-tab__label">{t("mockup.tab.search")}</label>
-        </div>
-      </div>
-
-      <!-- Resume briefing view — leads the mockup because the hero promises it -->
-      <div class="mockup-panel mockup-panel--resume" aria-hidden="true">
-        <div class="resume">
-          <div class="resume__head">
-            <span class="lane-dot lane-dot--emerald"></span>
-            <span class="resume__project">acme/auth-service</span>
-            <span class="resume__copy">Copied to clipboard</span>
-          </div>
-          <ul class="resume__lines">
-            {resumeLines.map((line) => <li>{line}</li>)}
-          </ul>
-          <p class="resume__next">{resumeNext}</p>
-        </div>
-      </div>
-
-      <!-- Digest view -->
-      <div class="mockup-panel mockup-panel--digest" aria-hidden="true">
-        <div class="digest-stats">
-          <span class="digest-stat"><strong>12</strong> sessions</span>
-          <span class="digest-stat"><strong>248</strong> prompts</span>
-          <span class="digest-stat"><strong>1.2M</strong> tokens</span>
-        </div>
-
         {
-          digestProjects.map((project) => (
-            <div class="digest-project">
-              <p class="digest-project__name">{project.name}</p>
-              <ul class="digest-rows">
-                {project.rows.map((row) => (
-                  <li class:list={["digest-row", { "digest-row--live": row.live }]}>
-                    <span class={`lane-dot lane-dot--${row.color}`} />
-                    <span class="digest-row__time">{row.time}</span>
-                    <span class="digest-row__title">{row.title}</span>
-                    <span class="digest-row__count">{row.prompts} prompts</span>
-                  </li>
-                ))}
-              </ul>
+          screens.map((screen, index) => (
+            <div class="mockup-tab">
+              <input
+                type="radio"
+                name="mockup-tab"
+                id={`mockup-tab-${screen.id}`}
+                class="mockup-tab__input"
+                checked={index === 0}
+              />
+              <label for={`mockup-tab-${screen.id}`} class="mockup-tab__label">
+                {screen.label}
+              </label>
             </div>
           ))
         }
       </div>
 
-      <!-- Timeline view -->
-      <div class="mockup-panel mockup-panel--timeline" aria-hidden="true">
-        <div class="timeline-ruler">
-          {timelineTicks.map((tick) => <span>{tick}</span>)}
-        </div>
-        <div class="timeline-lanes">
-          {
-            timelineBars.map((bar) => (
-              <div class="timeline-lane">
-                <span
-                  class={`timeline-bar timeline-bar--${bar.color}`}
-                  style={{ left: `${bar.left}%`, width: `${bar.width}%` }}
-                >
-                  <span class="timeline-bar__badge">🤖</span>
-                </span>
-              </div>
-            ))
-          }
-          <div class="timeline-now" style="left: 68%">
-            <span class="timeline-now__label">now</span>
+      {
+        screens.map((screen, index) => (
+          <div class={`mockup-panel mockup-panel--${screen.id}`}>
+            <img
+              class="mockup-shot"
+              src={`/screens/${screen.id}.png`}
+              alt={screen.alt}
+              width={screen.width}
+              height={screen.height}
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchpriority={index === 0 ? "high" : "auto"}
+              decoding="async"
+            />
           </div>
-        </div>
-      </div>
-
-      <!-- Search view -->
-      <div class="mockup-panel mockup-panel--search" aria-hidden="true">
-        <div class="cmdk">
-          <div class="cmdk__input">
-            <span class="cmdk__key">⌘K</span>
-            <span class="cmdk__query">auth token</span>
-          </div>
-          <ul class="cmdk__results">
-            {
-              searchResults.map((result) => (
-                <li class="cmdk__result">
-                  <span class="cmdk__result-title">
-                    {result.pre}
-                    <mark>{result.hit}</mark>
-                    {result.post}
-                  </span>
-                  <span class="cmdk__result-meta">{result.meta}</span>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-      </div>
+        ))
+      }
     </div>
   </div>
 </section>
@@ -276,9 +155,10 @@ const searchResults = [
     }
   }
 
-  /* ---- CSS-only tabs (Warp-style pill bar, radio-driven, JS-free) ---- */
+  /* ---- CSS-only tabs (Warp-style pill bar, radio-driven, no JS) ---- */
   .mockup-tabbar {
     display: inline-flex;
+    flex-wrap: wrap;
     gap: 0.25rem;
     border-radius: 9999px;
     border: 1px solid var(--color-line);
@@ -325,303 +205,20 @@ const searchResults = [
 
   .mockup-panel {
     display: none;
-    min-height: 16rem;
   }
   .mockup-root:has(#mockup-tab-resume:checked) .mockup-panel--resume,
   .mockup-root:has(#mockup-tab-digest:checked) .mockup-panel--digest,
   .mockup-root:has(#mockup-tab-timeline:checked) .mockup-panel--timeline,
-  .mockup-root:has(#mockup-tab-search:checked) .mockup-panel--search {
+  .mockup-root:has(#mockup-tab-summary:checked) .mockup-panel--summary {
     display: block;
   }
 
-  /* ---- Resume briefing view ---- */
-  .resume {
-    border: 1px solid var(--color-line);
+  .mockup-shot {
+    display: block;
+    width: 100%;
+    height: auto;
     border-radius: 0.6rem;
-    padding: 1rem 1.1rem;
-    background: color-mix(in srgb, var(--color-canvas) 60%, transparent);
-  }
-  .resume__head {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--color-line);
-  }
-  .resume__project {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    color: var(--color-ink);
-  }
-  /* "복사됨" 상태를 정적으로 보여준다 — 이 목업이 파는 동작이 곧 클립보드 복사라서. */
-  .resume__copy {
-    margin-left: auto;
-    border-radius: 9999px;
-    border: 1px solid color-mix(in srgb, var(--color-trust) 40%, var(--color-line));
-    background: color-mix(in srgb, var(--color-trust) 10%, transparent);
-    padding: 0.15rem 0.6rem;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--color-ink);
-  }
-  .resume__lines {
-    margin: 0.85rem 0 0;
-    padding-left: 1.1rem;
-    list-style: disc;
-    display: grid;
-    gap: 0.45rem;
-    font-size: 0.85rem;
-    color: var(--color-ink);
-  }
-  .resume__lines li::marker {
-    color: var(--color-muted);
-  }
-  .resume__next {
-    margin: 0.9rem 0 0;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--color-line);
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--color-ink);
-  }
-
-  /* ---- Digest view ---- */
-  .digest-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-  .digest-stat {
-    border-radius: 0.75rem;
     border: 1px solid var(--color-line);
     background: var(--color-canvas);
-    padding: 0.5rem 1rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-muted);
-  }
-  .digest-stat strong {
-    color: var(--color-ink);
-    font-weight: 700;
-  }
-
-  .digest-project + .digest-project {
-    margin-top: 1.5rem;
-  }
-  .digest-project__name {
-    margin: 0 0 0.6rem;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-muted);
-  }
-  .digest-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .digest-row {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    border-radius: 0.65rem;
-    border: 1px solid var(--color-line);
-    background: var(--color-canvas);
-    padding: 0.55rem 0.85rem;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--color-ink);
-  }
-  .digest-row__time {
-    flex-shrink: 0;
-    color: var(--color-muted);
-  }
-  .digest-row__title {
-    flex: 1;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  .digest-row__count {
-    flex-shrink: 0;
-    color: var(--color-muted);
-  }
-
-  /* A new stream row periodically sliding in, simulating a live capture. */
-  .digest-row--live {
-    animation: digest-row-in 6s ease-in-out infinite;
-  }
-  @keyframes digest-row-in {
-    0% {
-      transform: translateX(-0.75rem);
-      opacity: 0;
-    }
-    10%,
-    100% {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  /* ---- Timeline view ---- */
-  .timeline-ruler {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--color-muted);
-  }
-  .timeline-lanes {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-  .timeline-lane {
-    position: relative;
-    height: 1.75rem;
-    border-radius: 0.5rem;
-    background: var(--color-canvas);
-    border: 1px solid var(--color-line);
-  }
-  .timeline-bar {
-    position: absolute;
-    top: 0.2rem;
-    bottom: 0.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    border-radius: 9999px;
-    padding-inline-end: 0.4rem;
-    background: color-mix(in srgb, var(--lane-color) 55%, var(--color-canvas));
-    border: 1px solid var(--lane-color);
-  }
-  .timeline-bar--amber {
-    --lane-color: var(--color-lane-amber);
-  }
-  .timeline-bar--emerald {
-    --lane-color: var(--color-lane-emerald);
-  }
-  .timeline-bar--pink {
-    --lane-color: var(--color-lane-pink);
-  }
-  .timeline-bar--blue {
-    --lane-color: var(--color-lane-blue);
-  }
-  .timeline-bar__badge {
-    font-size: 0.65rem;
-    line-height: 1;
-  }
-  .timeline-now {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--color-cyan);
-    animation: timeline-now-pulse 2s ease-in-out infinite;
-  }
-  .timeline-now__label {
-    position: absolute;
-    top: -1.2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-cyan);
-    white-space: nowrap;
-  }
-  @keyframes timeline-now-pulse {
-    0%,
-    100% {
-      opacity: 1;
-      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-cyan) 60%, transparent);
-    }
-    50% {
-      opacity: 0.6;
-      box-shadow: 0 0 8px 1px color-mix(in srgb, var(--color-cyan) 60%, transparent);
-    }
-  }
-
-  /* ---- Search (Cmd-K) view ---- */
-  .cmdk {
-    border-radius: 0.85rem;
-    border: 1px solid var(--color-line);
-    background: var(--color-canvas);
-    overflow: hidden;
-  }
-  .cmdk__input {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    border-bottom: 1px solid var(--color-line);
-    padding: 0.85rem 1rem;
-    font-family: var(--font-mono);
-  }
-  .cmdk__key {
-    flex-shrink: 0;
-    border-radius: 0.35rem;
-    border: 1px solid var(--color-line);
-    background: var(--color-surface);
-    padding: 0.1rem 0.4rem;
-    font-size: 0.65rem;
-    color: var(--color-muted);
-  }
-  .cmdk__query {
-    font-size: 0.8rem;
-    color: var(--color-ink);
-  }
-  .cmdk__results {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .cmdk__result {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    padding: 0.7rem 1rem;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-  }
-  .cmdk__result + .cmdk__result {
-    border-top: 1px solid var(--color-line);
-  }
-  .cmdk__result-title {
-    color: var(--color-ink);
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  .cmdk__result-title mark {
-    border-radius: 0.25rem;
-    background: color-mix(in srgb, var(--color-cyan) 22%, transparent);
-    color: inherit;
-    padding: 0 0.15rem;
-  }
-  .cmdk__result-meta {
-    color: var(--color-muted);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .digest-row--live {
-      animation: none;
-      transform: none;
-      opacity: 1;
-    }
-    .timeline-now {
-      animation: none;
-      opacity: 1;
-      box-shadow: none;
-    }
   }
 </style>

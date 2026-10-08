@@ -1,6 +1,7 @@
 ---
 import { getAbsoluteLocaleUrl } from "astro:i18n";
 import LanguageToggle from "../components/LanguageToggle.astro";
+import { GITHUB_LICENSE_URL, GITHUB_URL } from "../consts";
 import { defaultLang, languages } from "../i18n/ui";
 import { getLangFromUrl, getPathWithoutLocale, useTranslations } from "../i18n/utils";
 import "../styles/global.css";
@@ -38,12 +39,9 @@ const structuredData = [
     description,
     operatingSystem: "macOS",
     applicationCategory: "ProductivityApplication",
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
     inLanguage: lang,
+    license: GITHUB_LICENSE_URL,
+    sameAs: [GITHUB_URL],
   },
   {
     "@context": "https://schema.org",
